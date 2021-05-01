@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../widgets/app-drawer.widget.dart';
+import '../providers/cart.provider.dart';
+import '../screens/order-preview.scree.dart';
+import '../widgets/product-grid-view.widget.dart';
+import '../widgets/product-list-view.widget.dart';
+import '../widgets/badge.dart';
+
+enum FilterOptions { OnlyFavourite, All }
+
+class ProductOverviewScreen extends StatefulWidget {
+  @override
+  _ProductOverviewScreenState createState() => _ProductOverviewScreenState();
+}
+
+class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
+  bool onleFavs = false;
+  bool isGridView = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Products'), actions: [
+        PopupMenuButton(
+          elevation: 16,
+          onSelected: (FilterOptions selectedValue) {
+            setState(() {
+              onleFavs = selectedValue == FilterOptions.OnlyFavourite;
+            });
+          },
+          icon: Icon(Icons.filter_alt_outlined),
+          itemBuilder: (ctx) => [
+            PopupMenuItem(
+              child: Text('Only Favourite'),
+              value: FilterOptions.OnlyFavourite,
+            ),
+            PopupMenuItem(
+              child: Text('All'),
+              value: FilterOptions.All,
+            ),
+          ],
+        ),
+        Consumer<CartProvider>(
+          builder: (_, cartProvider, widgetItem) => Badge(
+            child: widgetItem,
+            value: cartProvider.cartCount.toString(),
+          ),
+          child: IconButton(
+            icon: Icon(
+              Icons.shopping_cart_outlined,
+            ),
+            onPressed: () {
+              Navigator.of(context).pushNamed(OrderPreviewScreen.path);
+            },
+          ),
+        )
+      ]),
+      drawer: AppDrawerWidget(),
+      body: Container(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: Column(
+          children: [
+            Container(
+              height: 100,
+              child: Card(
+                child: Center(
+                  child: ListTile(
+                    title: const Text(
+                      'Change View',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    trailing: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isGridView = !isGridView;
+                        });
+                      },
+                      child: Icon(!isGridView ?  Icons.grid_view : Icons.list)
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              height: 500,
+              child: isGridView ?  ProductGridView(onleFavs) : ProductListViewWidget(onleFavs),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
