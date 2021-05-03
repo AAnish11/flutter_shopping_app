@@ -14,6 +14,29 @@ class AddToCartItemWidget extends StatelessWidget {
       builder: (_, cartData, __) {
         return IconButton(
           onPressed: () {
+            ScaffoldMessenger.of(context).removeCurrentSnackBar(); // If any exists snackbar remove it
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: Duration(seconds: 3),
+              elevation: 8,
+              padding: EdgeInsets.all(8),
+              shape: RoundedRectangleBorder(),
+              content: Row(
+                children: [
+                  Icon(Icons.thumb_up, color: Colors.white),
+                  SizedBox(width: 8,),
+                  Text(
+                    'Product added to cart!',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              action: SnackBarAction(
+                label: 'Done',
+                onPressed: () {
+                  print('undo');
+                }
+              ,),
+            ));
             cartData.addProductToCart(productId, productTitle, productPrice);
           },
           color: Theme.of(context).accentColor,

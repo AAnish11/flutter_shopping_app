@@ -13,7 +13,31 @@ class OrderPreviewScreen extends StatelessWidget {
       floatingActionButton: Consumer<CartProvider>(
         builder: (_, cartProvider, __) => FloatingActionButton(
           onPressed: () {
-            cartProvider.clearCart();
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) {
+                return AlertDialog(
+                  title: Text('Confirm'),
+                  content: Text('Are you sure , you want to clear the cart'),
+                  actions: [
+                    TextButton(
+                      child: Text('Yes'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        cartProvider.clearCart();
+                      },
+                    ),
+                    TextButton(
+                      child: Text('No'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                );
+              },
+            );
           },
           elevation: 16,
           backgroundColor: Colors.red,
