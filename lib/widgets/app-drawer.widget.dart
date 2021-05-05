@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import '../screens/orders.screen.dart';
+import '../screens/my-products.screen.dart';
 
 class AppDrawerWidget extends StatelessWidget {
   @override
@@ -38,7 +39,20 @@ class AppDrawerWidget extends StatelessWidget {
               style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             onTap: () {
+              Navigator.of(context).pop();
               Navigator.of(context).pushNamed(OrdersScreen.path);
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: const  Icon(Icons.shopping_bag_rounded),
+            title: const Text(
+              'My Products',
+              style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed(MyProductsScreen.path);
             },
           )
           ],

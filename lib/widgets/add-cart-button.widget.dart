@@ -16,7 +16,7 @@ class AddToCartItemWidget extends StatelessWidget {
           onPressed: () {
             ScaffoldMessenger.of(context).removeCurrentSnackBar(); // If any exists snackbar remove it
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: Duration(seconds: 3),
+              duration: Duration(seconds: 1),
               elevation: 8,
               padding: EdgeInsets.all(8),
               shape: RoundedRectangleBorder(),
