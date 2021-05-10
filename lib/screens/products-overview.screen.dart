@@ -28,13 +28,11 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     if (!isFetched) {
       _fetchProduct();
     }

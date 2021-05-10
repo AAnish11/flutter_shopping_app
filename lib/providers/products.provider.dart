@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/product.model.dart';
-import '../constants/product-dummy-data.constant.dart';
 import '../config/http.config.dart';
 
 class ProductsProvider with ChangeNotifier {
-  List<Product> _products = DUMMY_PRODUCTS;
+  List<Product> _products = [];
+
+  ProductsProvider(this._products);
 
   List<Product> get allProducts {
     return [..._products];
@@ -19,30 +20,8 @@ class ProductsProvider with ChangeNotifier {
   Product productById(String id) {
     return _products.firstWhere((product) => product.id == id);
   }
-
-  Future<void> addNewProduct(
-      String title, String description, double price) async {
-    final url = Uri.https(END_POINTS, ADD_PRODUCT);
-    const bool isFavourite = false;
-    const String imageUrl =
-        'https://images-na.ssl-images-amazon.com/images/I/610irNyucGL._UL1500_.jpg';
-    final postData = json.encode({
-      title: title,
-      description: description,
-      price: price,
-      isFavourite: isFavourite,
-      imageUrl: imageUrl
-    });
-    try {
-      final dynamic response = await http.post(url, body: postData);
-      print(json.decode(response));
-    } catch (error) {
-      throw error;
-    }
-  }
-
+  
   // Post: Http Request Submitting New Product Data
-
   Future<void> addNewItem(
       String title, String description, String img, double price) async {
     try {
@@ -75,7 +54,7 @@ class ProductsProvider with ChangeNotifier {
   Future<void> updateItem(String productId, String title, String description,
       String img, double price) async {
     try {
-      final url = Uri.https('$END_POINTS', '$EDIT_PRODUCT/${productId}.json');
+      final url = Uri.https('$END_POINTS', '$EDIT_PRODUCT/$productId.json');
       final body = json.encode({
         'title': title,
         'description': description,
@@ -130,7 +109,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> updateProductLikeDislike(String productId, bool status) async {
     try {
-      final url = Uri.https('$END_POINTS', '$EDIT_PRODUCT/${productId}.json');
+      final url = Uri.https('$END_POINTS', '$EDIT_PRODUCT/$productId.json');
       print(status);
       await http.patch(
         url,
@@ -145,7 +124,7 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> deleteItemById(String productId) async {
     try {
-      final url = Uri.https('$END_POINTS', '$EDIT_PRODUCT/${productId}.json');
+      final url = Uri.https('$END_POINTS', '$EDIT_PRODUCT/$productId.json');
       http.Response resp = await http.delete(url);
       print(jsonDecode(resp.body));
       _products.removeWhere((product) => product.id == productId);

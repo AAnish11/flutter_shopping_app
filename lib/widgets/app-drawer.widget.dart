@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shoap_app/providers/auth.provider.dart';
 import '../screens/orders.screen.dart';
 import '../screens/my-products.screen.dart';
 
@@ -18,43 +20,57 @@ class AppDrawerWidget extends StatelessWidget {
               child: Center(
                   child: const Text(
                 'My Shopping App',
-                style: TextStyle( color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
               )),
             ),
             ListTile(
-            leading: const Icon(Icons.list),
-            title: const Text(
-              'Products',
-              style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              leading: const Icon(Icons.list),
+              title: const Text(
+                'Products',
+                style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              onTap: () {
+                Navigator.of(context).pushReplacementNamed('/');
+              },
             ),
-            onTap: () {
-              Navigator.of(context).pushReplacementNamed('/');
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: const  Icon(Icons.shopping_bag_rounded),
-            title: const Text(
-              'Orders',
-              style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Divider(),
+            ListTile(
+              leading: const Icon(Icons.shopping_bag_rounded),
+              title: const Text(
+                'Orders',
+                style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushNamed(OrdersScreen.path);
+              },
             ),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pushNamed(OrdersScreen.path);
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: const  Icon(Icons.shopping_bag_rounded),
-            title: const Text(
-              'My Products',
-              style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Divider(),
+            ListTile(
+              leading: const Icon(Icons.shopping_bag_rounded),
+              title: const Text(
+                'My Products',
+                style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushNamed(MyProductsScreen.path);
+              },
             ),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pushNamed(MyProductsScreen.path);
-            },
-          )
+            Divider(),
+            ListTile(
+              leading: const Icon(Icons.shopping_bag_rounded),
+              title: const Text(
+                'Logout',
+                style: (TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              onTap: () {
+                Provider.of<AuthProvider>(context, listen: false).logout();
+              },
+            )
           ],
         ));
   }

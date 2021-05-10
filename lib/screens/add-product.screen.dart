@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shoap_app/providers/products.provider.dart';
+import '../providers/products.provider.dart';
 import '../models/product.model.dart';
 import '../helpers/dialog-alert.helper.dart';
+import '../helpers/image-upload.helper.dart';
 
 class AddProductScreen extends StatefulWidget {
   static const path = '/add-edit-product';
@@ -15,11 +18,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   final FocusNode _priceNode = FocusNode();
   final FocusNode _description = FocusNode();
-  final FocusNode _image = FocusNode();
-  final _imageContoller = TextEditingController(text: '');
   final _productNameController = TextEditingController(text: '');
   final _productPriceController = TextEditingController(text: '');
   final _productDescController = TextEditingController(text: '');
+  String _oldImage;
   String _prodId = '';
 
   @override
@@ -34,7 +36,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _productNameController.text = productData.title;
         _productPriceController.text = productData.price.toString();
         _productDescController.text = productData.description;
-        _imageContoller.text = productData.imageUrl;
+        setState(() {
+          _oldImage = productData.imageUrl;
+        });
       }
     });
     super.initState();
@@ -56,9 +60,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
     FocusScope.of(context).unfocus(); // close keyboard programatically
+    if (_imageFile == null && _prodId == '') {
+      DialogAlertsHelper.showErrorMsg(
+          context, 'Please select product image ', () {});
+      return;
+    }
     DialogAlertsHelper.showSpinner(context); // show loading indicator
     _formState.currentState.save();
     try {
+      final String imageUrl = _imageFile != null ?  await Helper.uploadImage(_imageFile) : _oldImage;
       String msg = 'Product added successfully';
       if (_prodId != '') {
         msg = 'Product update successfully';
@@ -66,36 +76,51 @@ class _AddProductScreenState extends State<AddProductScreen> {
           _prodId,
           _productNameController.text,
           _productDescController.text,
-          _imageContoller.text,
+          imageUrl,
           double.parse(_productPriceController.text),
         );
       } else {
         await Provider.of<ProductsProvider>(context, listen: false).addNewItem(
           _productNameController.text,
           _productDescController.text,
-          _imageContoller.text,
+          imageUrl,
           double.parse(_productPriceController.text),
         );
       }
       _closeSpinner();
-      DialogAlertsHelper.showSuccessMsg(context, msg,
-          () {
+      DialogAlertsHelper.showSuccessMsg(context, msg, () {
         Navigator.of(context).pop();
       });
     } catch (err) {
       _closeSpinner();
-      DialogAlertsHelper.showErrorMsg(context, 'Something went wrong', () {
-        // TODO::
-      });
+      DialogAlertsHelper.showErrorMsg(context, 'Something went wrong', () {});
     }
+  }
+
+  File _imageFile;
+  Future getImage() async {
+    final pickedFile  = await Helper.getPickedImage();
+    print(pickedFile);
+    setState(() {
+      _imageFile = File(pickedFile.path);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final editId = ModalRoute.of(context).settings.arguments as String;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: getImage,
+        tooltip: 'Pick Image',
+        backgroundColor: Colors.purple,
+        foregroundColor: Colors.white,
+        child: Icon(
+          Icons.add_a_photo,
+        ),
+      ),
       appBar: AppBar(
-        title: Text(editId !=  null ? 'Edit Product' : 'Add Prodduct'),
+        title: Text(editId != null ? 'Edit Product' : 'Add Prodduct'),
         actions: [
           IconButton(
             icon: Icon(Icons.save_outlined),
@@ -108,6 +133,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         child: ListView(
           padding: EdgeInsets.all(2),
           children: [
+            SizedBox(height: 16),
             TextFormField(
               keyboardType: TextInputType.name,
               controller: _productNameController,
@@ -174,24 +200,26 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _submitForm();
               },
             ),
-            TextFormField(
-              keyboardType: TextInputType.url,
-              controller: _imageContoller,
-              decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.all(8),
-                  labelText: 'Image Url',
-                  suffixIcon: const Icon(Icons.image)),
-              validator: (value) {
-                if (value.isEmpty) {
-                  return 'Please enter image URL';
-                }
-                if (!value.startsWith('http') && !value.startsWith('https')) {
-                  return 'Please enter valid url';
-                }
-                return null;
-              },
-              focusNode: _image,
-            ),
+            if (_imageFile != null)
+              Container(
+                padding: EdgeInsets.all(16),
+                margin: EdgeInsets.all(16),
+                height: 100,
+                width: 100,
+                child: Image.file(
+                  _imageFile,
+                  scale: 1,
+                  repeat: ImageRepeat.noRepeat,
+                ),
+              ),
+            if (_imageFile == null && _oldImage != null)
+              Container(
+                padding: EdgeInsets.all(16),
+                margin: EdgeInsets.all(16),
+                height: 100,
+                width: 100,
+                child: Image.network(_oldImage),
+              ),
           ],
         ),
       ),
